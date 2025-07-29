@@ -1,0 +1,6 @@
+timestamp,modelo,r2_score,rmse,cv_score,training_time,best_params
+2025-07-28 22:18:24,RandomForestRegressor,0.7927209055401218,1.7901688180396245,-2.5406770242448067,9.669044971466064,"{'clf__max_depth': 15, 'clf__max_features': 'sqrt', 'clf__min_samples_leaf': 1, 'clf__min_samples_split': 10, 'clf__n_estimators': 200, 'clf__random_state': 42}"
+2025-07-28 22:18:24,XGBRegressor,0.830349326133728,1.6195486771657561,-2.0261901736259462,9.44783878326416,"{'clf__colsample_bytree': 1.0, 'clf__learning_rate': 0.1, 'clf__max_depth': 3, 'clf__n_estimators': 50, 'clf__random_state': 42, 'clf__reg_alpha': 0.1, 'clf__subsample': 1.0}"
+2025-07-28 22:18:24,Ridge,0.8008710843988397,1.7546213162420161,-2.392750881173844,0.40543341636657715,"{'clf__alpha': 100.0, 'clf__fit_intercept': True, 'clf__solver': 'auto'}"
+2025-07-28 22:18:24,KNeighborsRegressor,0.7728104788078372,1.8741760550085642,-2.4144431137724554,1.112856149673462,"{'clf__algorithm': 'ball_tree', 'clf__metric': 'euclidean', 'clf__n_neighbors': 10, 'clf__weights': 'uniform'}"
+2025-07-28 22:18:24,SVR,0.8114573864216836,1.7073438647136978,-2.1383695169599295,190.21429347991943,"{'clf__C': 100.0, 'clf__epsilon': 0.1, 'clf__gamma': 'scale', 'clf__kernel': 'rbf'}"

@@ -14,6 +14,8 @@ import time
 from sklearn.linear_model import LassoCV 
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split, GridSearchCV
+import os
+from datetime import datetime
 
 
 class StudentPerformanceEvaluator:
@@ -134,18 +136,21 @@ class StudentPerformanceEvaluator:
     def genetic_search(self):
         """Búsqueda genética optimizada para Student Performance."""
         results = {}
+
+        print("Realizando selección de características con LassoCV...")
+        lasso_cv = LassoCV(cv=5, random_state=42)
+        lasso_cv.fit(self.X_train, self.y_train)
+        selector = SelectFromModel(lasso_cv, prefit=True)
+        X_train_sel = selector.transform(self.X_train)
+        X_test_sel = selector.transform(self.X_test)
         
         for name, model in self.models.items():
             print(f"Entrenando {name} con método genético...")
             
-            # Feature selection con LassoCV
-            lasso_cv = LassoCV(cv=5, random_state=42)
-            lasso_cv.fit(self.X_train, self.y_train)
-            f_selection = SelectFromModel(lasso_cv, prefit=True)
             
             # Pipeline con selección de características y modelo
             pl = Pipeline([
-                ('fs', f_selection),
+                ('fs', StandardScaler()),
                 ('clf', model)
             ])
             
@@ -164,7 +169,7 @@ class StudentPerformanceEvaluator:
                 algorithm="eaSimple",
                 n_jobs=-1,
                 verbose=True,
-                random_state=42  # Para reproducibilidad
+                #random_state=42  # Para reproducibilidad
             )
             
             start_time = time.time()
@@ -189,6 +194,7 @@ class StudentPerformanceEvaluator:
             
             print(f"{name} - R²: {r2:.4f}, RMSE: {rmse:.4f}, Tiempo: {end_time - start_time:.2f}s")
         
+        guardar_resultados_csv("resultados_genetico.csv", results)
         return results
 
     def exhaustive_search(self):
@@ -205,7 +211,7 @@ class StudentPerformanceEvaluator:
             
             # Pipeline simple para búsqueda exhaustiva
             pl = Pipeline([
-                ('fs', f_selection),
+                ('fs', SelectFromModel(LassoCV(cv=5))),
                 ('clf', model)
             ])
             
@@ -239,7 +245,8 @@ class StudentPerformanceEvaluator:
             }
             
             print(f"{name} - R²: {r2:.4f}, RMSE: {rmse:.4f}, Tiempo: {end_time - start_time:.2f}s")
-        
+
+        guardar_resultados_csv("resultados_exhaustivo.csv", results)
         return results
 
     def compare_results(self, genetic_results, exhaustive_results):
@@ -262,6 +269,31 @@ class StudentPerformanceEvaluator:
             })
         
         return pd.DataFrame(comparison)
+    
+
+
+def guardar_resultados_csv(nombre_archivo, resultados_dict):
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    registros = []
+
+    for modelo, datos in resultados_dict.items():
+        registros.append({
+            "timestamp": now,
+            "modelo": modelo,
+            "r2_score": datos['r2_score'],
+            "rmse": datos['rmse'],
+            "cv_score": datos['cv_score'],
+            "training_time": datos['training_time'],
+            "best_params": str(datos['best_params'])  # convert dict to string
+        })
+
+    df_resultados = pd.DataFrame(registros)
+
+    if os.path.exists(nombre_archivo):
+        df_resultados.to_csv(nombre_archivo, mode='a', header=False, index=False)
+    else:
+        df_resultados.to_csv(nombre_archivo, index=False)
+
 
 # Ejemplo de uso:
 """
